@@ -16,4 +16,4 @@ services:
       - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
       - ${BACKUP_DIR}:/mnt/backup
     entrypoint: ["autorestic"]
-    command: ["cron"]
+    command: ["-c", "/.autorestic.yml", "cron"]
