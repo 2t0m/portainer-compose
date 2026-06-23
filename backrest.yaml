@@ -26,5 +26,8 @@ services:
 
       # Configuration rclone pour backends cloud (Box, Mega)
       - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
+
+      # Docker socket pour contrôle des conteneurs (hooks)
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "${BACKREST_PORT:-9898}:9898"
