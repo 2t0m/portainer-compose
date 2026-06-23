@@ -1,0 +1,41 @@
+services:
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    user: "${PUID}:${PGID}"
+    ports:
+      - "${NAVIDROME_PORT:-4533}:4533"
+    environment:
+      TZ: ${TZ}
+      ND_CONFIGFILE: /data/navidrome.toml
+      ND_LOGLEVEL: warning
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ${NAVI_URL}
+      ND_DEFAULTPLAYLISTPUBLICVISIBILITY: "true"
+      ND_ENABLESHARING: "true"
+      ND_SPOTIFY_ID: ${ND_SPOTIFY_ID}
+      ND_SPOTIFY_SECRET: ${ND_SPOTIFY_SECRET}
+      ND_LASTFM_ENABLED: "true"
+      ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
+      ND_LASTFM_LANGUAGE: fr
+      ND_DEEZER_LANGUAGE: fr
+      ND_BACKUP_PATH: /backup
+      ND_BACKUP_SCHEDULE: "0 0 * * *"
+      ND_BACKUP_COUNT: 7
+      ND_PLUGINS_ENABLED: "true"
+      ND_PLUGINS_FOLDER: /data/plugins
+      ND_PLUGINS_AUTORELOAD: "true"
+      ND_AGENTS: apple-music,audiomuseai,deezer,lastfm
+      ND_PLUGINS_LOGLEVEL: debug
+    volumes:
+      - ${DOCKER_DATA_PATH}/navidrome/data:/data
+      - ${DOCKER_DATA_PATH}/navidrome/backup:/backup
+      - ${MUSIC_PATH}:/music:ro
+    networks:
+      - navidrome-network
+
+networks:
+  navidrome-network:
+    driver: bridge

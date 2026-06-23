@@ -1,0 +1,85 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: lscr.io/linuxserver/homeassistant:latest
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      UMASK: 007
+    volumes:
+      - ${DOCKER_DATA_PATH}/homeassistant:/config
+    depends_on:
+      - mqtt
+      - zigbee2mqtt
+      - zwavejs2mqtt
+
+  mqtt:
+    container_name: mosquitto
+    image: eclipse-mosquitto:latest
+    restart: unless-stopped
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+      - "${MQTT_WEBSOCKET_PORT:-9001}:9001"
+    volumes:
+      - ${DOCKER_DATA_PATH}/mosquitto/config:/mosquitto/config:ro
+      - ${DOCKER_DATA_PATH}/mosquitto/log:/mosquitto/log
+      - ${DOCKER_DATA_PATH}/mosquitto/data:/mosquitto/data
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    ports:
+      - "${ZIGBEE2MQTT_PORT:-8085}:8080"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${DOCKER_DATA_PATH}/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
+    devices:
+      # Replace with your Zigbee dongle path (find it with: ls -l /dev/serial/by-id/)
+      - /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_3cf2fda59829ec11b4f76d7840c9ce8d-if00-port0:/dev/ttyACM0
+    depends_on:
+      - mqtt
+
+  zwavejs2mqtt:
+    container_name: zwavejs2mqtt
+    image: zwavejs/zwavejs2mqtt:latest
+    restart: unless-stopped
+    tty: true
+    stop_signal: SIGINT
+    ports:
+      - "${ZWAVEJS_WEB_PORT:-8091}:8091"
+      - "${ZWAVEJS_WEBSOCKET_PORT:-3000}:3000"
+    environment:
+      SESSION_SECRET: ${ZWAVE_SESSION_SECRET}
+      TZ: ${TZ}
+    volumes:
+      - ${DOCKER_DATA_PATH}/zwavejs2mqtt:/usr/src/app/store
+    devices:
+      # Replace with your Z-Wave controller path (find it with: ls -l /dev/serial/by-id/)
+      - /dev/serial/by-id/usb-0658_0200-if00:/dev/ttyACM0
+    depends_on:
+      - mqtt
+
+  matter-hub:
+    container_name: matter-hub
+    image: ghcr.io/riddix/home-assistant-matter-hub:latest
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      HAMH_HOME_ASSISTANT_URL: ${HA_URL}
+      HAMH_HOME_ASSISTANT_ACCESS_TOKEN: ${HAMH_HA_TOKEN}
+      HAMH_LOG_LEVEL: info
+      HAMH_HTTP_PORT: 8482
+    volumes:
+      - ${DOCKER_DATA_PATH}/matter-hub:/data
+
+networks:
+  default:
+    enable_ipv6: true

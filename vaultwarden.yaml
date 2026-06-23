@@ -1,0 +1,21 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: "${PUID}:${PGID}"
+    ports:
+      - "${VAULTWARDEN_PORT:-8800}:80"
+    environment:
+      SIGNUPS_ALLOWED: false
+      #ADMIN_TOKEN: ${VW_ADMIN_TOKEN}
+      TZ: ${TZ}
+      LOG_FILE: /data/vaultwarden.log
+      SMTP_HOST: smtp.gmail.com
+      SMTP_FROM: ${VW_SMTP_FROM}
+      SMTP_PORT: 587
+      SMTP_SSL: true
+      SMTP_USERNAME: ${VW_SMTP_FROM}
+      SMTP_PASSWORD: ${VW_SMTP_PASSWORD}
+    volumes:
+      - ${DOCKER_DATA_PATH}/vaultwarden:/data/

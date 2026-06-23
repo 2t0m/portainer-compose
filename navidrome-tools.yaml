@@ -1,0 +1,93 @@
+services:
+  airconnect:
+    container_name: airconnect
+    image: 1activegeek/airconnect:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      AIRCAST_VAR: "-i /config/config.0.xml"
+      AIRUPNP_VAR: kill
+    volumes:
+      - ${DOCKER_DATA_PATH}/airconnect:/config
+
+  asknavidrome:
+    image: ghcr.io/rosskouk/asknavidrome:latest
+    container_name: asknavidrome
+    restart: unless-stopped
+    ports:
+      - "${ASKNAVIDROME_PORT:-5000}:5000"
+    environment:
+      - NAVI_SKILL_ID=${NAVI_SKILL_ID}
+      - NAVI_SONG_COUNT=50
+      - NAVI_URL=${NAVI_INTERNAL_URL}
+      - NAVI_USER=${NAVI_USER}
+      - NAVI_PASS=${NAVI_PASS}
+      - NAVI_PORT=443
+      - NAVI_API_PATH=/rest
+      - NAVI_API_VER=1.16.1
+      - NAVI_DEBUG=1
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "1"
+    networks:
+      - navidrome-network
+
+  re-command:
+    container_name: re-command-container
+    image: ghcr.io/snapyou2/re-command:latest
+    restart: unless-stopped
+    ports:
+      - "${RECOMMAND_PORT:-5005}:5000"
+    environment:
+      RECOMMAND_ROOT_ND: ${NAVI_INTERNAL_URL}
+      RECOMMAND_USER_ND: ${NAVIDROME_USER}
+      RECOMMAND_PASSWORD_ND: ${NAVIDROME_PASSWORD}
+    volumes:
+      - ${MUSIC_PATH}/_toTidyUp:/app/music
+      - ${DOCKER_DATA_PATH}/re-command/.tempfolder:/app/temp_downloads
+    networks:
+      - navidrome-network
+
+  deefix:
+    container_name: deefix
+    image: ghcr.io/2t0m/deefix:main
+    restart: unless-stopped
+    environment:
+      FIX_TAGS: "true"
+      FETCH_LYRICS: "true"
+      REMOVE_DUPLICATES: "true"
+      FETCH_VIDEO_ARTWORK: "true"
+      FIX_GAIN: "true"
+      ANALYZE_ESSENTIA: "true"
+      ORGANIZE_MP3: "true"
+      AUDIOMUSE_AI_CALL: "true"
+      AUDIOMUSE_AI_URL: ${AUDIOMUSEAI_INTERNAL_URL}
+      AUDIOMUSE_AI_DEBOUNCE: "30"
+    volumes:
+      - ${MUSIC_PATH}:/music
+      - ${DOCKER_DATA_PATH}/deefix:/data
+    networks:
+      - navidrome-network
+
+  deefind:
+    container_name: deefind
+    image: ghcr.io/2t0m/deefind:main
+    restart: unless-stopped
+    ports:
+      - "${DEEFIND_PORT:-1234}:1234"
+    environment:
+      DEEZER_ARL: ${DEEMIX_ARL}
+      NAVIDROME_URL: ${NAVI_INTERNAL_URL}
+      NAVIDROME_USER: ${NAVIDROME_USER}
+      NAVIDROME_PASS: ${NAVIDROME_PASSWORD}
+    volumes:
+      - ${MUSIC_PATH}/_toTidyUp:/downloads
+    networks:
+      - navidrome-network
+
+networks:
+  navidrome-network:
+    name: portainer-compose_navidrome-network
+    external: true

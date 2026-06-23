@@ -1,0 +1,15 @@
+services:
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wg-easy
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - LANG=fr
+      - WG_HOST=${WG_HOST}
+      - PASSWORD_HASH=${WG_PASSWORD_HASH}
+    volumes:
+      - ${DOCKER_DATA_PATH}/wireguard:/etc/wireguard
