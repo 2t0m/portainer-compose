@@ -1,6 +1,9 @@
 # Environment variables (keep local, never commit)
 .env
 
+# Autorestic configuration (may contain sensitive paths)
+autorestic_conf.yaml
+
 # Docker volumes and runtime data
 docker-compose.override.yml
 

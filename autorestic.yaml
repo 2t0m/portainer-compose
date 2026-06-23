@@ -1,0 +1,18 @@
+services:
+  autorestic:
+    image: cupcakearmy/autorestic:latest
+    container_name: autorestic
+    restart: unless-stopped
+    environment:
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-}
+      TZ: ${TZ}
+    volumes:
+      - ${DOCKER_DATA_PATH}:/docker_data:ro
+      - ${MUSIC_PATH}:/mnt/usbhdd/music:ro
+      - ${AUDIOBOOK_PATH}:/mnt/usbhdd/audiobook:ro
+      - ${EBOOK_PATH}:/mnt/usbhdd/ebook:ro
+      - ${PODCAST_PATH}:/mnt/usbhdd/podcast:ro 
+      - ${SCRIPT_DIR}/conf/autorestic/autorestic_conf.yaml:/.autorestic.yml:ro
+      - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
+      - ${BACKUP_DIR}:/mnt/backup
+    command: cron
