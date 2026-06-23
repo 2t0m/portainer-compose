@@ -73,7 +73,7 @@ services:
     privileged: true
     network_mode: host
     environment:
-      HAMH_HOME_ASSISTANT_URL: ${HA_URL}
+      HAMH_HOME_ASSISTANT_URL: ${SERVER_URL}:${HA_PORT}
       HAMH_HOME_ASSISTANT_ACCESS_TOKEN: ${HAMH_HA_TOKEN}
       HAMH_LOG_LEVEL: info
       HAMH_HTTP_PORT: 8482
