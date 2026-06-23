@@ -15,4 +15,5 @@ services:
       - ${SCRIPT_DIR}/conf/autorestic/autorestic_conf.yaml:/.autorestic.yml:ro
       - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
       - ${BACKUP_DIR}:/mnt/backup
-    command: cron
+    entrypoint: ["autorestic"]
+    command: ["cron"]
