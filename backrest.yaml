@@ -1,0 +1,30 @@
+services:
+  backrest:
+    image: garethgeorge/backrest:latest
+    container_name: backrest
+    restart: unless-stopped
+    hostname: backrest
+    environment:
+      BACKREST_PORT: ${BACKREST_PORT:-9898}
+      BACKREST_DATA: /data
+      TZ: ${TZ}
+      # XDG_CACHE_HOME: /cache/backrest
+    volumes:
+      # Configuration et cache Backrest
+      - ${DOCKER_DATA_PATH}/backrest/data:/data
+      - ${DOCKER_DATA_PATH}/backrest/cache:/cache
+
+      # Sources à sauvegarder (read-only)
+      - ${DOCKER_DATA_PATH}:/sources/docker_data:ro
+      - ${MUSIC_PATH}:/sources/music:ro
+      - ${AUDIOBOOK_PATH}:/sources/audiobook:ro
+      - ${EBOOK_PATH}:/sources/ebook:ro
+      - ${PODCAST_PATH}:/sources/podcast:ro
+
+      # Destination locale pour backups
+      - ${BACKUP_DIR}:/backups
+
+      # Configuration rclone pour backends cloud (Box, Mega)
+      - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
+    ports:
+      - "${BACKREST_PORT:-9898}:9898"
