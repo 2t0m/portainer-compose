@@ -1,23 +1,29 @@
 services:
   backrest:
-    image: garethgeorge/backrest:latest
+    image: ghcr.io/garethgeorge/backrest:latest
     container_name: backrest
     restart: unless-stopped
     hostname: backrest
     environment:
       BACKREST_PORT: ${BACKREST_PORT:-9898}
       BACKREST_DATA: /data
+      BACKREST_CONFIG: /config/config.json
+      XDG_CACHE_HOME: /cache
+      TMPDIR: /tmp
       TZ: ${TZ}
       RESTIC_PASSWORD: ${RESTIC_PASSWORD}
     volumes:
       - ${DOCKER_DATA_PATH}/backrest/data:/data
+      - ${DOCKER_DATA_PATH}/backrest/config:/config
       - ${DOCKER_DATA_PATH}/backrest/cache:/cache
+      - ${DOCKER_DATA_PATH}/backrest/tmp:/tmp
       - ${DOCKER_DATA_PATH}:/sources/docker_data:ro
       - ${MUSIC_PATH}:/sources/music:ro
       - ${AUDIOBOOK_PATH}:/sources/audiobook:ro
       - ${EBOOK_PATH}:/sources/ebook:ro
       - ${PODCAST_PATH}:/sources/podcast:ro
-      - ${BACKUP_DIR}:/backups
+      - ${SCRIPT_DIR}:/sources/script:ro
+      - ${BACKUP_DIR}:/backup
       - ${SCRIPT_DIR}/config/rclone:/root/.config/rclone:ro
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
