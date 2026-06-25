@@ -5,7 +5,6 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      AIRCAST_VAR: "-i /config/config.0.xml"
       AIRUPNP_VAR: kill
     volumes:
       - ${DOCKER_DATA_PATH}/airconnect:/config
