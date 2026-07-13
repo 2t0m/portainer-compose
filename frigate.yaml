@@ -1,0 +1,17 @@
+services:
+  frigate:
+    container_name: frigate
+    privileged: true
+    devices:
+      - /dev/dri:/dev/dri
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: ${FRIGATE_SHM_SIZE:-256mb}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_DATA_PATH}/frigate:/config
+      - ${FRIGATE_MEDIA_PATH}:/media/frigate
+    ports:
+      - "${FRIGATE_PORT:-8971}:8971"
+    environment:
+      - FRIGATE_RTSP_PASSWORD=${FRIGATE_RTSP_PASSWORD}
