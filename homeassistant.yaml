@@ -82,6 +82,21 @@ services:
     volumes:
       - ${DOCKER_DATA_PATH}/matter-hub:/data
 
+  anisette-v3:
+    container_name: anisette-v3
+    image: dadoum/anisette-v3-server
+    restart: always
+    volumes:
+      - anisette-v3_data:/home/Alcoholic/.config/anisette-v3/lib
+    ports:
+      - "${ANISETTE_PORT:-6969}:6969"
+
+volumes:
+  anisette-v3_data:
+    # Reuse the volume created by the former standalone "anisette" stack
+    external: true
+    name: anisette_anisette-v3_data
+
 networks:
   default:
     enable_ipv6: true
